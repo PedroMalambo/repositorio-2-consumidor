@@ -1,0 +1,38 @@
+name: Terraform Apply
+
+on:
+  workflow_dispatch: # Permite ejecutar manualmente el pipeline desde GitHub Actions
+  push:
+    branches:
+      - main
+
+jobs:
+  terraform-apply:
+    name: Desplegar Infraestructura Terraform
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Clonar el repositorio
+      - name: Clonar el repositorio
+        uses: actions/checkout@v3
+
+      # 2. Configurar Terraform
+      - name: Configurar Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      # 3. Inicializar Terraform
+      - name: Inicializar Terraform
+        run: terraform init
+
+      # 4. Validar los archivos de Terraform
+      - name: Validar configuración
+        run: terraform validate
+
+      # 5. Aplicar la configuración de Terraform
+      - name: Aplicar cambios con Terraform
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: terraform apply -auto-approve
